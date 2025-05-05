@@ -61,7 +61,7 @@ const AppHeader = () => {
                   </Link>
                   <Link to="/profile" className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-muted transition-colors">
                     <Avatar className="h-5 w-5">
-                      <AvatarImage src={currentUser?.photoURL || ""} alt={currentUser?.displayName || "User"} />
+                      <AvatarImage src={"/image.png"} alt={currentUser?.displayName || "User"} />
                       <AvatarFallback>{currentUser?.displayName?.charAt(0) || "U"}</AvatarFallback>
                     </Avatar>
                     <span>プロフィール</span>
