@@ -12,6 +12,7 @@ import Messages from "./pages/Messages";
 import UserDetail from "./pages/UserDetail";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/users/:id" element={<UserDetail />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

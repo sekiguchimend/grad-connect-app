@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -94,6 +94,11 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    letter-spacing: -0.025em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
   }
 }
 
@@ -103,7 +108,7 @@
   }
   
   .gradient-bg {
-    @apply bg-gradient-to-r from-grad-purple to-grad-lavender text-white;
+    @apply bg-gradient-to-r from-grad-purple to-grad-lavender text-white hover:shadow-md hover:from-grad-purple/90 hover:to-grad-lavender/90 transition-all;
   }
   
   .card-hover {
@@ -113,4 +118,71 @@
   .circle-connection {
     @apply rounded-full bg-gradient-to-r from-grad-purple to-grad-lavender p-1;
   }
+  
+  /* 新しいクラス */
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/60 dark:bg-black/30;
+  }
+  
+  .nav-item {
+    @apply flex items-center space-x-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary transition-colors;
+  }
+  
+  .nav-item.active {
+    @apply bg-secondary text-primary font-medium;
+  }
+  
+  .card-modern {
+    @apply border border-border/40 shadow-sm rounded-xl overflow-hidden bg-gradient-to-b from-white to-secondary/20;
+  }
+  
+  .btn-modern {
+    @apply rounded-full shadow-sm transition-all hover:shadow hover:translate-y-[-2px];
+  }
+}
+
+/* アニメーション */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+/* スクロールバーのカスタマイズ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }
