@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
@@ -21,7 +20,8 @@ import {
   Video,
   Info,
   Smile,
-  Bell
+  Bell,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from "sonner";
 import { 
@@ -157,7 +157,7 @@ const mockMessagesByChatId = {
 
 const Messages = () => {
   const { currentUser, isLoading } = useAuth();
-  const [activeChat, setActiveChat] = useState(mockChats[0]?.id || null);
+  const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -165,6 +165,23 @@ const Messages = () => {
   const [isTyping, setIsTyping] = useState(false);
   
   const messageEndRef = useRef<HTMLDivElement>(null);
+  
+  // デバイスサイズをチェックする
+  useEffect(() => {
+    const checkIsMobile = () => {
+      return window.innerWidth < 768;
+    };
+    
+    const handleResize = () => {
+      // デスクトップモードでのリサイズは処理しない
+      if (!checkIsMobile() && activeChat) {
+        // デスクトップモードでは常にチャット一覧とメッセージを表示
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [activeChat]);
   
   // Load the messages for the active chat
   useEffect(() => {
@@ -279,9 +296,173 @@ const Messages = () => {
     );
   }
   
+  // モバイルでチャットが選択されているときのメッセージ画面
+  if (activeChat && window.innerWidth < 768) {
+    return (
+      <Layout>
+        <div className="max-w-5xl mx-auto px-4">
+          {/* モバイルでのチャット詳細画面 */}
+          <div className="bg-card rounded-xl overflow-hidden shadow-sm flex flex-col h-[calc(100vh-140px)]">
+            {/* ヘッダー部分 - 戻るボタン付き */}
+            <div className="bg-muted/20 p-3 border-b border-border flex items-center justify-between">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="mr-2 rounded-full" 
+                  onClick={() => setActiveChat(null)}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center">
+                  <Avatar className="w-10 h-10 mr-3">
+                    <AvatarImage 
+                      src={activeChatDetails?.photoURL} 
+                      alt={activeChatDetails?.displayName}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {activeChatDetails?.displayName.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h2 className="font-semibold">
+                      {activeChatDetails?.displayName}
+                    </h2>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      {activeChatDetails?.online ? 
+                        <span className="flex items-center">
+                          <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                          オンライン
+                        </span> : 
+                        "オフライン"
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+                  <Video className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* メッセージ一覧部分 */}
+            <ScrollArea 
+              className="flex-1 px-4 py-4" 
+              id="message-list"
+            >
+              <div className="space-y-6">
+                <div className="text-center">
+                  <span className="text-xs bg-muted/30 px-3 py-1 rounded-full text-muted-foreground">
+                    今日
+                  </span>
+                </div>
+                
+                {messages.map(msg => (
+                  <ChatMessage
+                    key={msg.id}
+                    message={msg}
+                    currentUserId={currentUser?.id || 'user1'}
+                    senderDetails={{
+                      photoURL: activeChatDetails?.photoURL,
+                      displayName: activeChatDetails?.displayName || 'User'
+                    }}
+                    formatTime={formatMessageTime}
+                  />
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <Avatar className="w-8 h-8 mr-2 mt-1">
+                      <AvatarImage 
+                        src={activeChatDetails?.photoURL} 
+                        alt={activeChatDetails?.displayName}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {activeChatDetails?.displayName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="bg-secondary px-4 py-3 rounded-2xl rounded-bl-none">
+                      <div className="flex space-x-1">
+                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></span>
+                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={messageEndRef} />
+              </div>
+            </ScrollArea>
+            
+            {/* 入力部分 */}
+            <div className="p-3 border-t border-border">
+              <div className="flex items-center space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="rounded-full"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="bg-card">
+                    <DropdownMenuItem className="flex items-center">
+                      <Image className="mr-2 h-4 w-4" />
+                      <span>画像を送信</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center">
+                      <FileText className="mr-2 h-4 w-4" />
+                      <span>ファイルを送信</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <div className="flex-1 relative">
+                  <Input
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="メッセージを入力..."
+                    className="pr-10 rounded-full bg-muted/30 border-none"
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                  <Button 
+                    size="icon" 
+                    variant="ghost" 
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full"
+                  >
+                    <Smile className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
+                
+                <Button
+                  size="icon"
+                  className="bg-primary rounded-full h-10 w-10"
+                  onClick={handleSendMessage}
+                  disabled={!message.trim() || isSending}
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+  
+  // チャット一覧画面（モバイル）またはデスクトップの通常レイアウト
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4">
         <Tabs defaultValue="chats" className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted/30 p-1">
             <TabsTrigger 
@@ -299,96 +480,39 @@ const Messages = () => {
           </TabsList>
           
           <TabsContent value="chats" className="mt-4">
-            <div className="bg-card rounded-xl overflow-hidden shadow-sm">
-              <div className="p-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="メッセージを検索..." 
-                    className="pl-9 rounded-full bg-muted/30 border-none text-sm" 
-                  />
-                </div>
-              </div>
-              
-              <ChatList 
-                chats={filteredChats} 
-                activeChat={activeChat}
-                setActiveChat={setActiveChat}
-                formatTime={formatMessageTime}
-              />
-            </div>
-            
-            {activeChat ? (
-              <div className="mt-4 bg-card rounded-xl overflow-hidden shadow-sm">
-                <div className="bg-muted/20 p-3 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage 
-                        src={activeChatDetails?.photoURL} 
-                        alt={activeChatDetails?.displayName}
-                      />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {activeChatDetails?.displayName.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h2 className="font-semibold">
-                        {activeChatDetails?.displayName}
-                      </h2>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        {activeChatDetails?.online ? 
-                          <span className="flex items-center">
-                            <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                            オンライン
-                          </span> : 
-                          "オフライン"
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
-                      <Video className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
-                      <Info className="h-4 w-4" />
-                    </Button>
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+              {/* チャットリスト - モバイルでは全幅、デスクトップでは左側に配置 */}
+              <div className="w-full md:w-1/3 bg-card rounded-xl overflow-hidden shadow-sm">
+                <div className="p-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="メッセージを検索..." 
+                      className="pl-9 rounded-full bg-muted/30 border-none text-sm" 
+                    />
                   </div>
                 </div>
                 
-                <ScrollArea 
-                  className="h-[400px] px-4 py-4" 
-                  id="message-list"
-                >
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <span className="text-xs bg-muted/30 px-3 py-1 rounded-full text-muted-foreground">
-                        今日
-                      </span>
-                    </div>
-                    
-                    {messages.map(msg => (
-                      <ChatMessage
-                        key={msg.id}
-                        message={msg}
-                        currentUserId={currentUser?.id || 'user1'}
-                        senderDetails={{
-                          photoURL: activeChatDetails?.photoURL,
-                          displayName: activeChatDetails?.displayName || 'User'
-                        }}
-                        formatTime={formatMessageTime}
-                      />
-                    ))}
-                    
-                    {isTyping && (
-                      <div className="flex justify-start">
-                        <Avatar className="w-8 h-8 mr-2 mt-1">
+                <ChatList 
+                  chats={filteredChats} 
+                  activeChat={activeChat}
+                  setActiveChat={(chatId) => {
+                    setActiveChat(chatId);
+                  }}
+                  formatTime={formatMessageTime}
+                />
+              </div>
+              
+              {/* チャット表示部分 - デスクトップのみ表示 */}
+              <div className="hidden md:block md:w-2/3">
+                {activeChat ? (
+                  <div className="bg-card rounded-xl overflow-hidden shadow-sm flex flex-col h-[600px]">
+                    {/* ヘッダー部分 */}
+                    <div className="bg-muted/20 p-3 border-b border-border flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="w-10 h-10">
                           <AvatarImage 
                             src={activeChatDetails?.photoURL} 
                             alt={activeChatDetails?.displayName}
@@ -397,83 +521,151 @@ const Messages = () => {
                             {activeChatDetails?.displayName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="bg-secondary px-4 py-3 rounded-2xl rounded-bl-none">
-                          <div className="flex space-x-1">
-                            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></span>
-                            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                        <div>
+                          <h2 className="font-semibold">
+                            {activeChatDetails?.displayName}
+                          </h2>
+                          <div className="flex items-center text-xs text-muted-foreground">
+                            {activeChatDetails?.online ? 
+                              <span className="flex items-center">
+                                <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                オンライン
+                              </span> : 
+                              "オフライン"
+                            }
                           </div>
                         </div>
                       </div>
-                    )}
-                    
-                    <div ref={messageEndRef} />
-                  </div>
-                </ScrollArea>
-                
-                <div className="p-3 border-t border-border">
-                  <div className="flex items-center space-x-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          className="rounded-full"
-                        >
-                          <Paperclip className="w-4 h-4" />
+                      
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+                          <Phone className="h-4 w-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="bg-card">
-                        <DropdownMenuItem className="flex items-center">
-                          <Image className="mr-2 h-4 w-4" />
-                          <span>画像を送信</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center">
-                          <FileText className="mr-2 h-4 w-4" />
-                          <span>ファイルを送信</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    
-                    <div className="flex-1 relative">
-                      <Input
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="メッセージを入力..."
-                        className="pr-10 rounded-full bg-muted/30 border-none"
-                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                      />
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
-                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full"
-                      >
-                        <Smile className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+                          <Video className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     
-                    <Button
-                      size="icon"
-                      className="bg-primary rounded-full h-10 w-10"
-                      onClick={handleSendMessage}
-                      disabled={!message.trim() || isSending}
+                    {/* メッセージ一覧部分 */}
+                    <ScrollArea 
+                      className="flex-1 px-4 py-4" 
+                      id="message-list"
                     >
-                      <Send className="w-4 h-4" />
-                    </Button>
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <span className="text-xs bg-muted/30 px-3 py-1 rounded-full text-muted-foreground">
+                            今日
+                          </span>
+                        </div>
+                        
+                        {messages.map(msg => (
+                          <ChatMessage
+                            key={msg.id}
+                            message={msg}
+                            currentUserId={currentUser?.id || 'user1'}
+                            senderDetails={{
+                              photoURL: activeChatDetails?.photoURL,
+                              displayName: activeChatDetails?.displayName || 'User'
+                            }}
+                            formatTime={formatMessageTime}
+                          />
+                        ))}
+                        
+                        {isTyping && (
+                          <div className="flex justify-start">
+                            <Avatar className="w-8 h-8 mr-2 mt-1">
+                              <AvatarImage 
+                                src={activeChatDetails?.photoURL} 
+                                alt={activeChatDetails?.displayName}
+                              />
+                              <AvatarFallback className="bg-primary/10 text-primary">
+                                {activeChatDetails?.displayName.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="bg-secondary px-4 py-3 rounded-2xl rounded-bl-none">
+                              <div className="flex space-x-1">
+                                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></span>
+                                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div ref={messageEndRef} />
+                      </div>
+                    </ScrollArea>
+                    
+                    {/* 入力部分 */}
+                    <div className="p-3 border-t border-border">
+                      <div className="flex items-center space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="rounded-full"
+                            >
+                              <Paperclip className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="bg-card">
+                            <DropdownMenuItem className="flex items-center">
+                              <Image className="mr-2 h-4 w-4" />
+                              <span>画像を送信</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="flex items-center">
+                              <FileText className="mr-2 h-4 w-4" />
+                              <span>ファイルを送信</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        
+                        <div className="flex-1 relative">
+                          <Input
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="メッセージを入力..."
+                            className="pr-10 rounded-full bg-muted/30 border-none"
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                          />
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full"
+                          >
+                            <Smile className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                        
+                        <Button
+                          size="icon"
+                          className="bg-primary rounded-full h-10 w-10"
+                          onClick={handleSendMessage}
+                          disabled={!message.trim() || isSending}
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-card rounded-xl p-8 text-center shadow-sm h-[600px] flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Send className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">メッセージを選択</h3>
+                    <p className="text-muted-foreground">
+                      左側のリストからチャットを選択してください
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="mt-4 bg-card rounded-xl p-8 text-center shadow-sm">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Send className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">メッセージを選択</h3>
-                <p className="text-muted-foreground">
-                  左側のリストからチャットを選択してください
-                </p>
-              </div>
-            )}
+            </div>
           </TabsContent>
           
           <TabsContent value="unread">
