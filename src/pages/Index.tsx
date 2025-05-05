@@ -103,14 +103,14 @@ const Index = () => {
             <div>
               <Label htmlFor="role-filter">ユーザータイプ</Label>
               <Select
-                value={filters.role || ''}
+                value={filters.role || undefined}
                 onValueChange={(value) => handleFilterChange('role', value || undefined)}
               >
                 <SelectTrigger id="role-filter" className="w-full">
                   <SelectValue placeholder="すべて" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">すべて</SelectItem>
+                  <SelectItem value="all">すべて</SelectItem>
                   <SelectItem value="graduate">大学院生</SelectItem>
                   <SelectItem value="prospect">進学希望者</SelectItem>
                 </SelectContent>

@@ -253,7 +253,7 @@ const Profile = () => {
                   </p>
                   
                   <Select
-                    value={profile.role}
+                    value={profile.role || 'prospect'}
                     onValueChange={(value) => handleInputChange('role', value as UserRole)}
                   >
                     <SelectTrigger>
