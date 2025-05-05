@@ -54,7 +54,7 @@ const Index = () => {
 
   const filteredUsers = users.filter(user => {
     // ロールフィルターを適用
-    if (filters.role && filters.role !== 'all' && user.role !== filters.role) {
+    if (filters.role && filters.role !== undefined && user.role !== filters.role) {
       return false;
     }
     
