@@ -159,13 +159,26 @@ const Messages = () => {
   const { currentUser, isLoading } = useAuth();
   const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
-  const messageEndRef = useRef<HTMLDivElement>(null);
-  
+  const messageEndRef = useRef(null);
+  useEffect(() => {
+    // #root要素を直接取得してクラスを追加
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.classList.add('messages-page');
+    }
+    
+    return () => {
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        rootElement.classList.remove('messages-page');
+      }
+    };
+  }, []);
   // デバイスサイズをチェックする
   useEffect(() => {
     const checkIsMobile = () => {
@@ -269,7 +282,7 @@ const Messages = () => {
   
   const activeChatDetails = mockChats.find(chat => chat.id === activeChat);
   
-  const formatMessageTime = (date: Date) => {
+  const formatMessageTime = (date) => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -299,23 +312,24 @@ const Messages = () => {
   // モバイルでチャットが選択されているときのメッセージ画面
   if (activeChat && window.innerWidth < 768) {
     return (
-      <Layout>
-        <div className="max-w-5xl mx-auto px-4">
+      <Layout >
+        {/* 横のpaddingとmarginを削除 */}
+        <div className="w-full">
           {/* モバイルでのチャット詳細画面 */}
-          <div className="bg-card rounded-xl overflow-hidden shadow-sm flex flex-col h-[calc(100vh-140px)]">
+          <div className="bg-card rounded-none md:rounded-xl overflow-hidden shadow-sm flex flex-col h-[calc(100vh-100px)] mx-0 px-0">
             {/* ヘッダー部分 - 戻るボタン付き */}
-            <div className="bg-muted/20 p-3 border-b border-border flex items-center justify-between">
+            <div className="bg-muted/20 p-2 border-b border-border flex items-center justify-between">
               <div className="flex items-center">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="mr-2 rounded-full" 
+                  className="mr-1 rounded-full" 
                   onClick={() => setActiveChat(null)}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center">
-                  <Avatar className="w-10 h-10 mr-3">
+                  <Avatar className="w-10 h-10 mr-2">
                     <AvatarImage 
                       src={activeChatDetails?.photoURL} 
                       alt={activeChatDetails?.displayName}
@@ -341,7 +355,7 @@ const Messages = () => {
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
                 <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
                   <Phone className="h-4 w-4" />
                 </Button>
@@ -351,12 +365,12 @@ const Messages = () => {
               </div>
             </div>
             
-            {/* メッセージ一覧部分 */}
+            {/* メッセージ一覧部分 - サイドのパディングを削減 */}
             <ScrollArea 
-              className="flex-1 px-4 py-4" 
+              className="flex-1 px-2 py-4" 
               id="message-list"
             >
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="text-center">
                   <span className="text-xs bg-muted/30 px-3 py-1 rounded-full text-muted-foreground">
                     今日
@@ -401,15 +415,15 @@ const Messages = () => {
               </div>
             </ScrollArea>
             
-            {/* 入力部分 */}
-            <div className="p-3 border-t border-border">
+            {/* 入力部分 - サイドのパディングを削減 */}
+            <div className="p-2 border-t border-border">
               <div className="flex items-center space-x-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="outline" 
                       size="icon"
-                      className="rounded-full"
+                      className="rounded-full h-10 w-10 min-w-10 flex-shrink-0"
                     >
                       <Paperclip className="w-4 h-4" />
                     </Button>
@@ -445,7 +459,7 @@ const Messages = () => {
                 
                 <Button
                   size="icon"
-                  className="bg-primary rounded-full h-10 w-10"
+                  className="bg-primary rounded-full h-10 w-10 min-w-10 flex-shrink-0"
                   onClick={handleSendMessage}
                   disabled={!message.trim() || isSending}
                 >
@@ -455,16 +469,17 @@ const Messages = () => {
             </div>
           </div>
         </div>
-      </Layout>
+        </Layout>
     );
   }
   
   // チャット一覧画面（モバイル）またはデスクトップの通常レイアウト
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto px-4">
+      {/* 横のpaddingとmarginを削除 */}
+      <div className="w-full">
         <Tabs defaultValue="chats" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted/30 p-1">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted/30 p-1 mx-2">
             <TabsTrigger 
               value="chats" 
               className="rounded-full text-sm font-medium"
@@ -479,11 +494,11 @@ const Messages = () => {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="chats" className="mt-4">
-            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+          <TabsContent value="chats" className="mt-2">
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 px-0">
               {/* チャットリスト - モバイルでは全幅、デスクトップでは左側に配置 */}
               <div className="w-full md:w-1/3 bg-card rounded-xl overflow-hidden shadow-sm">
-                <div className="p-3">
+                <div className="p-2">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input 
@@ -552,7 +567,7 @@ const Messages = () => {
                     
                     {/* メッセージ一覧部分 */}
                     <ScrollArea 
-                      className="flex-1 px-4 py-4" 
+                      className="flex-1 px-2 py-4" 
                       id="message-list"
                     >
                       <div className="space-y-6">
@@ -666,18 +681,6 @@ const Messages = () => {
                 )}
               </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="unread">
-            <Card className="p-8 text-center shadow-sm">
-              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <Bell className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="font-semibold text-lg mb-2">未読メッセージなし</h3>
-              <p className="text-muted-foreground">
-                現在、未読メッセージはありません。新しいメッセージが届くとここに表示されます。
-              </p>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>
