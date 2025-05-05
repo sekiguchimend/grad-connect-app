@@ -14,7 +14,7 @@ const UserCard = ({ user }: UserCardProps) => {
         <div className="flex items-center space-x-4">
           <div className="circle-connection w-16 h-16">
             <img 
-              src={user.photoURL || "https://i.pravatar.cc/150?img=1"} 
+              src={"/image.png"} 
               alt={user.displayName}
               className="rounded-full w-full h-full object-cover"
             />

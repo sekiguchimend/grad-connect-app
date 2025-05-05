@@ -73,7 +73,7 @@ const UserDetail = () => {
           <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
             <div className="circle-connection w-32 h-32 md:w-40 md:h-40">
               <img 
-                src={user.photoURL || "https://i.pravatar.cc/150?img=1"} 
+                src={"/image.png"} 
                 alt={user.displayName}
                 className="rounded-full w-full h-full object-cover"
               />

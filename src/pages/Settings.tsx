@@ -112,7 +112,7 @@ const Settings = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-20 h-20 circle-connection">
                     <img 
-                      src={currentUser?.photoURL || "https://i.pravatar.cc/150?img=3"} 
+                      src={"/image2.png"} 
                       alt="Profile" 
                       className="rounded-full object-cover w-full h-full"
                     />

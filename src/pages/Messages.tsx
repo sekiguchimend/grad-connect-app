@@ -37,7 +37,7 @@ const mockChats = [
     id: 'chat1',
     userId: 'user2',
     displayName: '鈴木 花子',
-    photoURL: 'https://i.pravatar.cc/150?img=5',
+    photoURL: '/image.png',
     lastMessage: 'はじめまして！大学院について質問があります。',
     timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
     unread: true,
@@ -48,7 +48,7 @@ const mockChats = [
     id: 'chat2',
     userId: 'user3',
     displayName: '田中 太郎',
-    photoURL: 'https://i.pravatar.cc/150?img=8',
+    photoURL: '/image2.png',
     lastMessage: '研究室の雰囲気についてもう少し詳しく教えていただけますか？',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
     unread: false,
@@ -59,7 +59,7 @@ const mockChats = [
     id: 'chat3',
     userId: 'user4',
     displayName: '佐藤 美咲',
-    photoURL: 'https://i.pravatar.cc/150?img=9',
+    photoURL: '/image3.png',
     lastMessage: '資料を送っていただきありがとうございます！',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
     unread: false,
